@@ -1,5 +1,6 @@
 require("dotenv/config");
 const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
+const { Player } = require("discord-player");
 
 //client instance
 const client = new Client({
@@ -12,50 +13,23 @@ const client = new Client({
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildInvites,
     GatewayIntentBits.GuildModeration,
+    GatewayIntentBits.GuildVoiceStates,
   ],
 });
 
 // Command handling
 client.commands = new Collection();
+//player instance
+const player = new Player(client);
 
-//loader Commands
+//load extractors
+(async () => {
+  await player.extractors.loadDefault();
+})();
+
+//loader Commands, Events, registering commands
 require("./structs/commands")(client);
-
-//loader Events
 require("./structs/events")(client);
-
-//registering commands
 require("./deploy-commands");
-
-//interaction Event
-client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-
-  const command = interaction.client.commands.get(interaction.commandName);
-
-  if (!command) {
-    return interaction.reply({
-      content: "This command doesn't exist!",
-      ephemeral: true,
-    });
-  }
-
-  try {
-    await command.execute(interaction);
-  } catch (error) {
-    console.error(error);
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({
-        content: "There was an error while executing this command!",
-        ephemeral: true,
-      });
-    } else {
-      await interaction.reply({
-        content: "There was an error while executing this command!",
-        ephemeral: true,
-      });
-    }
-  }
-});
 
 client.login(process.env.TOKEN);

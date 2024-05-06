@@ -38,6 +38,12 @@ const rest = new REST().setToken(process.env.TOKEN);
       `Started refreshing ${commands.length} application (/) commands.`
     );
 
+    //for delete all commands if necessary
+    // await rest
+    //   .put(Routes.applicationCommands(process.env.CLIENT_ID), { body: [] })
+    //   .then(() => console.log("Successfully deleted all application commands."))
+    //   .catch(console.error);
+
     // The put method is used to fully refresh all commands in the guild with the current set
     const data = await rest.put(
       Routes.applicationGuildCommands(
